@@ -1,31 +1,27 @@
 #include <new>
+#include "Pilha.hpp"
 
-typedef struct {
-    int cod;
-    char nome[50];
-    float preco;
-} Produto;
-
-typedef struct str_Nodo Nodo;
-
-struct str_Nodo {
-    Nodo *prox;
-    Produto dado;
+struct PilhaNodo {
+    PilhaNodo *prox;
+    Ingrediente dado;
 };
 
-typedef struct {
-    Nodo *topo;
-} PilhaEnc;
 void inicializa(PilhaEnc *p) {
     p->topo = nullptr;
+}
+
+void limpar(PilhaEnc *p) {
+    Ingrediente descartado;
+    while (pop(p, &descartado)) {
+    }
 }
 
 int estaVazia(const PilhaEnc *p) {
     return p->topo == nullptr;
 }
 
-int push(PilhaEnc *p, Produto valor) {
-    Nodo *novo = new (std::nothrow) Nodo;
+int push(PilhaEnc *p, Ingrediente valor) {
+    PilhaNodo *novo = new (std::nothrow) PilhaNodo;
     if (novo == nullptr)
         return 0;
 
@@ -35,8 +31,8 @@ int push(PilhaEnc *p, Produto valor) {
     return 1;
 }
 
-int pop(PilhaEnc *p, Produto *valorRemovido) {
-    Nodo *removido;
+int pop(PilhaEnc *p, Ingrediente *valorRemovido) {
+    PilhaNodo *removido;
 
     if (estaVazia(p)) // underflow
         return 0;
@@ -48,7 +44,7 @@ int pop(PilhaEnc *p, Produto *valorRemovido) {
     return 1;
 }
 
-int topo(const PilhaEnc *p, Produto *valor) {
+int topo(const PilhaEnc *p, Ingrediente *valor) {
     if (estaVazia(p))
         return 0;
 
@@ -57,7 +53,7 @@ int topo(const PilhaEnc *p, Produto *valor) {
 }
 
 int tamanho(const PilhaEnc *p) {
-    Nodo *aux = p->topo;
+    PilhaNodo *aux = p->topo;
     int contador = 0;
 
     while (aux != nullptr) {
@@ -66,4 +62,21 @@ int tamanho(const PilhaEnc *p) {
     }
 
     return contador;
+}
+
+int obterNaPosicao(const PilhaEnc *p, int posicao, Ingrediente *valor) {
+    if (p == nullptr || valor == nullptr || posicao < 0)
+        return 0;
+
+    PilhaNodo *aux = p->topo;
+    while (aux != nullptr && posicao > 0) {
+        aux = aux->prox;
+        posicao--;
+    }
+
+    if (aux == nullptr)
+        return 0;
+
+    *valor = aux->dado;
+    return 1;
 }

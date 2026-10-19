@@ -1,11 +1,13 @@
 #ifndef HUD_HPP
 #define HUD_HPP
 
-#include "jogador.hpp"
+#include "fase.hpp"
 
 /**
- * Desenha vidas, energia, pontuação e fase.
+ * Desenha os parametros atuais da fase.
  */
-void desenharHud(const Jogador *jogador, int pontuacao, int faseAtual);
+void desenharHud(const Fase *fase);
+void DesenharHamburger(const PilhaEnc *pilha, int posX, int posY);
+void DesenharPedido(const FilaEnc *fila, int posX, int posY);
 
 #endif

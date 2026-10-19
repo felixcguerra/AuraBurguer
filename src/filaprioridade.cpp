@@ -1,14 +1,15 @@
-#define CAP 1024
+#include <cstring>
+#include "../include/filaprioridade.hpp"
 
-typedef struct {
-    int dados[CAP];
-    int tam;
-} FilaPrioridade;
+void inicializa(FilaPrioridade *fp) {
+    std::memset(fp->dados, 0, sizeof(fp->dados));
+    fp->tam = 0;
+}
 
 void siftUp(int a[], int i) {
     while (i > 0) {
         int pai = (i - 1) / 2;
-        if (a[pai] >= a[i]) return;
+        if (a[pai] <= a[i]) return;
 
         int tmp = a[i];
         a[i] = a[pai];
@@ -18,16 +19,16 @@ void siftUp(int a[], int i) {
 }
 
 void heapify(int a[], int n, int i) {
-    int maior = i;
+    int menor = i;
     int esq   = 2*i + 1;
     int dir   = 2*i + 2;
 
-    if (esq < n && a[esq] > a[maior]) maior = esq;
-    if (dir < n && a[dir] > a[maior]) maior = dir;
+    if (esq < n && a[esq] < a[menor]) menor = esq;
+    if (dir < n && a[dir] < a[menor]) menor = dir;
 
-    if (maior != i) {
-        int tmp = a[i]; a[i] = a[maior]; a[maior] = tmp;
-        heapify(a, n, maior);
+    if (menor != i) {
+        int tmp = a[i]; a[i] = a[menor]; a[menor] = tmp;
+        heapify(a, n, menor);
     }
 }
 
@@ -37,14 +38,14 @@ void fpInserir(FilaPrioridade *fp, int valor) {
     fp->tam++;
 }
 
-int fpMaximo(FilaPrioridade *fp) {
-    return fp->dados[0];   /* O(1) */
+int fpMinimo(FilaPrioridade *fp) {
+    return fp->dados[0];
 }
 
-int fpRemoverMaximo(FilaPrioridade *fp) {
-    int max    = fp->dados[0];
+int fpRemoverMinimo(FilaPrioridade *fp) {
+    int min = fp->dados[0];
     fp->tam--;
     fp->dados[0] = fp->dados[fp->tam];
     heapify(fp->dados, fp->tam, 0);
-    return max;
+    return min;
 }

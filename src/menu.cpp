@@ -38,15 +38,20 @@ MenuPrincipalAcao atualizarDesenharMenuPrincipal(void) {
 }
 
 MenuPauseAcao atualizarDesenharMenuPause(void) {
-    const char *opcoes[] = { "Continuar (C)", "Inventario (I)", "Salvar (J)", "Sair (S)" };
-    Rectangle botoes[4];
+    const char *opcoes[] = { "Continuar (C)", "Como jogar (A)", "Sair (S)" };
+    const MenuPauseAcao acoes[] = {
+        PAUSE_ACAO_CONTINUAR,
+        PAUSE_ACAO_COMO_JOGAR,
+        PAUSE_ACAO_SAIR_MENU
+    };
+    Rectangle botoes[3];
     static int selecionado = 0;
     Vector2 mouse = GetMousePosition();
 
     DrawRectangle(350, 140, 500, 450, Fade(BLACK, 0.8f));
     DrawText("Pause", 560, 180, 40, WHITE);
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         botoes[i] = (Rectangle){ 430.0f, 260.0f + i * 70.0f, 340.0f, 54.0f };
         bool emCima = CheckCollisionPointRec(mouse, botoes[i]);
         if (emCima) selecionado = i;
@@ -54,23 +59,22 @@ MenuPauseAcao atualizarDesenharMenuPause(void) {
         DrawText(opcoes[i], (int)botoes[i].x + 16, (int)botoes[i].y + 15, 24, WHITE);
     }
 
-    if (IsKeyPressed(KEY_DOWN)) selecionado = (selecionado + 1) % 4;
-    if (IsKeyPressed(KEY_UP)) selecionado = (selecionado + 3) % 4;
+    if (IsKeyPressed(KEY_DOWN)) selecionado = (selecionado + 1) % 3;
+    if (IsKeyPressed(KEY_UP)) selecionado = (selecionado + 2) % 3;
 
     if (IsKeyPressed(KEY_C)) return PAUSE_ACAO_CONTINUAR;
-    if (IsKeyPressed(KEY_I)) return PAUSE_ACAO_INVENTARIO;
-    if (IsKeyPressed(KEY_J)) return PAUSE_ACAO_SALVAR;
+    if (IsKeyPressed(KEY_A)) return PAUSE_ACAO_COMO_JOGAR;
     if (IsKeyPressed(KEY_S)) return PAUSE_ACAO_SAIR_MENU;
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             if (!CheckCollisionPointRec(mouse, botoes[i])) continue;
-            return (MenuPauseAcao)(i + 1);
+            return acoes[i];
         }
     }
 
     if (IsKeyPressed(KEY_ENTER)) {
-        return (MenuPauseAcao)(selecionado + 1);
+        return acoes[selecionado];
     }
 
     return PAUSE_ACAO_NENHUMA;
@@ -120,3 +124,11 @@ void desenharTelaAjuda(void) {
     DrawText("CONSULTAS (estoque, pedido etc.) NAO CONSOMEM TURNO.", 510, 584, 17, SKYBLUE);
     DrawText("Pressione ESC para voltar ao menu", 410, 674, 22, LIGHTGRAY);
 }
+
+int SelecionarDificuldade(void) {//retorna um inteiro para a dificuldade que o jogador escolheu apertando o botão respectivo.
+    DrawText("SELECIONE A DIFICULDADE", 400, 140, 38, WHITE);
+    DrawText("Facil (F)", 480, 220, 24, WHITE);
+    DrawText("Medio (M)", 480, 270, 24, WHITE);
+    DrawText("Dificil (D)", 480, 320, 24, WHITE);
+    return 0;
+}   
