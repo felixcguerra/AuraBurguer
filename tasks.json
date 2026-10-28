@@ -1,0 +1,59 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build with Raylib",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "main.cpp",
+                "src/menu.cpp",
+                "src/fase.cpp",
+                "src/Fila.cpp",
+                "src/Pilha.cpp",
+                "src/ListaEnc.cpp",
+                "src/filaprioridade.cpp",
+                "src/hud.cpp",
+                "-std=gnu++17",
+                "-o", "main.exe",
+                "-Iexternal/include",
+                "-Iinclude",
+                "-Isrc",
+                "-Lexternal/lib",
+                "-lraylibdll",
+                "-lopengl32",
+                "-lgdi32",
+                "-lwinmm"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Run Game",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Copy-Item external/lib/raylib.dll . -Force; .\\main.exe"
+            ],
+            "dependsOn": "Build with Raylib",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}
