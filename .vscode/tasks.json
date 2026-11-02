@@ -14,6 +14,9 @@
                 "src/ListaEnc.cpp",
                 "src/filaprioridade.cpp",
                 "src/hud.cpp",
+                "src/leitura.cpp",
+                "src/AVL.cpp",
+                "src/Hash.cpp",
                 "-std=gnu++17",
                 "-o", "main.exe",
                 "-Iexternal/include",
@@ -43,7 +46,7 @@
             "command": "powershell",
             "args": [
                 "-Command",
-                "Copy-Item external/lib/raylib.dll . -Force; .\\main.exe"
+                "Copy-Item external/lib/raylib.dll . -Force; .\\main.exe pedidos.txt historico.txt"
             ],
             "dependsOn": "Build with Raylib",
             "group": {

@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 
+// Ações possíveis no menu principal (0 = nenhuma ação neste quadro).
 typedef enum {
     MENU_ACAO_NENHUMA = 0,
     MENU_ACAO_NOVO_JOGO,
@@ -11,6 +12,8 @@ typedef enum {
     MENU_ACAO_SAIR
 } MenuPrincipalAcao;
 
+// Ações possíveis no menu de pausa (0 = nenhuma ação neste quadro).
+// INVENTARIO e SALVAR estão declaradas, mas não são usadas atualmente.
 typedef enum {
     PAUSE_ACAO_NENHUMA = 0,
     PAUSE_ACAO_CONTINUAR,
@@ -37,6 +40,7 @@ void desenharTelaAjuda(void);
 
 /**
  * Desenha tela de inventário.
+ * (Declarada aqui, mas ainda sem implementação em menu.cpp.)
  */
 void desenharTelaInventario(bool podeEquiparNaTelaAtual);
 
