@@ -3,11 +3,8 @@
 #include <ctime>
 #include <random>
 
-// Função auxiliar (visível só neste arquivo): cria um Pedido a partir do código
-// e da string de receita (ex.: "skmpaz"), monta a lista encadeada de ingredientes
-// (um nodo por caractere, na ordem da receita) e coloca o pedido na fila.
-// Retorna 1 em caso de sucesso e 0 se alguma alocação falhar (liberando o que
-// já tinha sido alocado para o pedido).
+// Cria um Pedido a partir do código e da receita (ex.: "skmpaz") e o coloca na fila.
+// Retorna 1 em sucesso e 0 se alguma alocação falhar.
 static int adicionarPedido(FilaEnc *pedidos, int codigo, const char *combinacao) {
     Pedido pedido = {};
     pedido.cod = codigo;
@@ -54,10 +51,8 @@ static int sortear(int min, int max) {
     return distribuicao(gerador);
 }
 
-// Sorteia um código de pedido e obtém a receita: primeiro consulta a hash (hit);
-// se não estiver lá (miss), busca na AVL e guarda o resultado na hash.
-// Se o código sorteado não existir na AVL, sorteia outro.
-// Retorna o código sorteado e coloca a receita em *receita.
+// Sorteia um código e obtém a receita: consulta a hash e, se der miss, busca na AVL.
+// Se o código não existir, sorteia outro. Retorna o código e coloca a receita em *receita.
 static int sortearPedido(NodoAVL *raiz, TabelaHash *cache, const char **receita) {
     int menor = menorCodigo(raiz);
     int maior = maiorCodigo(raiz);
@@ -147,11 +142,9 @@ int CompararHamburguerComPedido(const PilhaEnc *hamburguer, const Pedido *pedido
     return 1;
 }
 
-// Atualiza o estado da fase após uma ação do jogador que consome turno.
-// Passos: avança o turno, reduz a paciência do cliente da frente, verifica se o
-// hambúrguer atual completa o pedido e decide se o jogo continua, foi vencido
-// ou perdido.
-// Retorna STATE_VITORIA, STATE_DERROTA ou STATE_NOVO_JOGO (jogo em andamento).
+// Atualiza a fase depois de uma ação que consome turno: avança o turno, reduz a
+// paciência do cliente da frente e confere se o pedido foi concluído.
+// Retorna STATE_VITORIA, STATE_DERROTA ou STATE_NOVO_JOGO.
 GameState atualizarfase(Fase *fase) {
     if (fase == nullptr)
         return STATE_DERROTA;
@@ -167,7 +160,6 @@ GameState atualizarfase(Fase *fase) {
         fase->NumDePedidos--;
         limpar(&fase->pedidoAtual); // prepara um prato vazio para o próximo cliente
         // Remove o cliente atendido da fila e libera a lista de ingredientes dele
-        // (o dequeue só libera o nodo da fila; sem o destruir havia vazamento).
         Pedido descartado = {};
         if (dequeue(&fase->pedidos, &descartado))
             destruir(&descartado.ingredientes);

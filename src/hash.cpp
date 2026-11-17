@@ -1,36 +1,46 @@
 #include <cstdlib>
 #include <cstring>
 #include "hash.hpp"
+#include "medicoes.hpp"
 
 void iniciarHash(TabelaHash *t, int m) {
-    t->tabela = (No **)calloc(m, sizeof(No *)); /* calloc: todas as listas vazias */
+    t->tabela = (No **)calloc(m, sizeof(No *));
     t->m = m;
     t->n = 0;
 }
 
-/* Inserção com encadeamento — O(1) */
 void inserirHash(TabelaHash *t, int chave, const char *receita) {
     int i = chave % t->m;
+    if (t->tabela[i] != NULL) {
+        incrementarColisaoHash(); // Conta colisão por encadeamento
+    }
     No *novo = (No *)malloc(sizeof(No));
     novo->chave = chave;
     strcpy(novo->receita, receita);
-    novo->prox  = t->tabela[i];   /* insere no início */
+    novo->prox  = t->tabela[i];
     t->tabela[i] = novo;
     t->n++;
 }
 
-/* Busca com encadeamento — O(1 + comprimento da lista) */
-const char *buscarHash(TabelaHash *t, int chave) {
+static const char *buscarHashAux(TabelaHash *t, int chave, bool *encontrou) {
     int i = chave % t->m;
     No *p = t->tabela[i];
     while (p != NULL) {
-        if (p->chave == chave) return p->receita;
+        if (p->chave == chave) {
+            if (encontrou) *encontrou = true;
+            return p->receita;
+        }
         p = p->prox;
     }
-    return NULL;   /* não encontrado */
+    if (encontrou) *encontrou = false;
+    return NULL;
 }
 
-/* Remoção com encadeamento — O(1 + comprimento da lista) */
+const char *buscarHash(TabelaHash *t, int chave) {
+    return buscarHashAux(t, chave, NULL);
+}
+
+/* Remoção com encadeamento: O(1 + comprimento da lista) */
 int removerHash(TabelaHash *t, int chave) {
     int i = chave % t->m;
     No *p = t->tabela[i];
@@ -64,14 +74,39 @@ void liberarHash(TabelaHash *t) {
 }
 
 const char *buscarPedidoHash(TabelaHash *t, NodoAVL *raiz, int codigo) {
-    const char *receita = buscarHash(t, codigo);   /* hit: não consulta a AVL */
-    if (receita != NULL)
+    bool hit = false;
+    const char *receita = buscarHashAux(t, codigo, &hit);
+    if (hit) {
+        registrarAcessoHash(true); // Hit no cache
         return receita;
+    }
+    registrarAcessoHash(false); // Miss no cache
 
-    NodoAVL *nodo = buscarAVL(raiz, codigo);      /* miss: busca na AVL */
+    // Cronometra e conta comparações da busca na AVL
+    Timer tBusca;
+    timer_iniciar(&tBusca);
+    int comparacoes = 0;
+    
+    // Buscamos na AVL contando comparações
+    NodoAVL *nodo = nullptr;
+    NodoAVL *atual = raiz;
+    while (atual != nullptr) {
+        comparacoes++;
+        if (codigo == atual->codigo) {
+            nodo = atual;
+            break;
+        }
+        if (codigo < atual->codigo)
+            atual = atual->esq;
+        else
+            atual = atual->dir;
+    }
+    double tempoBusca = timer_parar(&tBusca);
+    registrarBuscaAVL(comparacoes, tempoBusca);
+
     if (nodo == NULL)
         return NULL;
 
-    inserirHash(t, codigo, nodo->receita);         /* guarda no cache */
-    return buscarHash(t, codigo);
+    inserirHash(t, codigo, nodo->receita);
+    return buscarHashAux(t, codigo, NULL);
 }

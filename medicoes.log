@@ -1,0 +1,70 @@
+========================================
+      LOG DE MEDICOES E DESEMPENHO      
+========================================
+
+--- 5.1 CARREGAMENTO INICIAL ---
+AVL - Nos Inseridos: 837253
+AVL - Altura da Arvore: 20
+AVL - Numero de Rotacoes: 837233
+AVL - Tempo de Carregamento: 0.573811 s
+Historico - Entradas Carregadas: 7
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: pontuacao decrescente | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000002 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: alfabetica | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000003 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: pontuacao decrescente | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000003 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: alfabetica | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000003 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: pontuacao decrescente | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000002 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: alfabetica | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000003 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: pontuacao decrescente | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000002 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: alfabetica | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000003 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: pontuacao decrescente | Registros ordenados: 7
+Tempo de Execucao (MergeSort): 0.000002 s
+
+--- 5.2 ORDENACAO DO HISTORICO ---
+Criterio: pontuacao decrescente | Registros ordenados: 8
+Tempo de Execucao (MergeSort): 0.000003 s
+
+========================================
+       RELATORIO DE DESEMPENHO          
+========================================
+1. AVL - BUSCAS DURANTE A SESSAO:
+   - Total de buscas: 3
+   - Total de comparacoes: 54
+   - Media de comparacoes por busca: 18.00
+   - Tempo acumulado de buscas: 0.000011 s
+
+2. TABELA HASH - ESTATISTICAS DE CACHE:
+   - Hits: 0 | Misses: 3
+   - Taxa de acerto: 0.00%
+   - Fator de carga (lambda): 0.0030
+   - Total de colisoes em insercoes: 0
+
+3. ORDENACAO DO HISTORICO:
+   - Tempo da ultima ordenacao: 0.000003 s
+========================================
+

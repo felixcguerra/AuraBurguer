@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "AVL.hpp"
+#include "medicoes.hpp"
 
 int maiorEntre(int a, int b) {
     return (a > b) ? a : b;
@@ -48,9 +49,7 @@ NodoAVL *rotacaoEsquerda(NodoAVL *x) {
 }
 
 NodoAVL *inserirAVL(NodoAVL *raiz, int codigo, const char *receita, int *ok) {
-
     if (raiz == nullptr) {
-        // Em C++ o retorno de malloc precisa de cast explícito
         NodoAVL *novo = static_cast<NodoAVL *>(malloc(sizeof(NodoAVL)));
 
         if (novo == nullptr) {
@@ -60,7 +59,6 @@ NodoAVL *inserirAVL(NodoAVL *raiz, int codigo, const char *receita, int *ok) {
         }
 
         novo->codigo = codigo;
-        // strncpy + terminador: nunca escreve além do buffer da receita
         strncpy(novo->receita, receita, TAM_RECEITA - 1);
         novo->receita[TAM_RECEITA - 1] = '\0';
 
@@ -68,39 +66,45 @@ NodoAVL *inserirAVL(NodoAVL *raiz, int codigo, const char *receita, int *ok) {
         novo->esq = nullptr;
         novo->dir = nullptr;
 
+        incrementarNosInseridos();
+
         return novo;
     }
 
     if (codigo < raiz->codigo)
         raiz->esq = inserirAVL(raiz->esq, codigo, receita, ok);
-
     else if (codigo > raiz->codigo)
         raiz->dir = inserirAVL(raiz->dir, codigo, receita, ok);
-
     else
-        return raiz; // código repetido: ignora
+        return raiz;
 
     raiz->altura = 1 + maiorEntre(altura(raiz->esq), altura(raiz->dir));
 
     int fb = fatorBalanceamento(raiz);
 
     // Caso LL
-    if (fb > 1 && codigo < raiz->esq->codigo)
+    if (fb > 1 && codigo < raiz->esq->codigo) {
+        registrarRotacoes(1);
         return rotacaoDireita(raiz);
+    }
 
     // Caso RR
-    if (fb < -1 && codigo > raiz->dir->codigo)
+    if (fb < -1 && codigo > raiz->dir->codigo) {
+        registrarRotacoes(1);
         return rotacaoEsquerda(raiz);
+    }
 
     // Caso LR
     if (fb > 1 && codigo > raiz->esq->codigo) {
         raiz->esq = rotacaoEsquerda(raiz->esq);
+        registrarRotacoes(2);
         return rotacaoDireita(raiz);
     }
 
     // Caso RL
     if (fb < -1 && codigo < raiz->dir->codigo) {
         raiz->dir = rotacaoDireita(raiz->dir);
+        registrarRotacoes(2);
         return rotacaoEsquerda(raiz);
     }
 
@@ -108,7 +112,6 @@ NodoAVL *inserirAVL(NodoAVL *raiz, int codigo, const char *receita, int *ok) {
 }
 
 NodoAVL *buscarAVL(NodoAVL *raiz, int codigo) {
-
     if (raiz == nullptr)
         return nullptr;
 
@@ -121,8 +124,6 @@ NodoAVL *buscarAVL(NodoAVL *raiz, int codigo) {
     return buscarAVL(raiz->dir, codigo);
 }
 
-// Usa lerProximoPedido (leitura.cpp), que já valida código, tamanho da receita
-// e símbolos dos ingredientes, e trata "\r\n" e linhas em branco.
 int carregarArquivo(FILE *arq, NodoAVL **raiz) {
     if (arq == nullptr || raiz == nullptr)
         return 0;
@@ -138,11 +139,10 @@ int carregarArquivo(FILE *arq, NodoAVL **raiz) {
             return 0;
     }
 
-    return status == 0; // 0 = fim normal do arquivo; -1 = formato inválido
+    return status == 0;
 }
 
 void liberarAVL(NodoAVL *raiz) {
-
     if (raiz == nullptr)
         return;
 
