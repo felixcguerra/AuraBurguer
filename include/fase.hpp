@@ -46,4 +46,9 @@ int iniciarfase(Fase *fase, NodoAVL *raiz, TabelaHash *cache);
 // Atualiza a fase após uma ação que consome turno; retorna o próximo estado do jogo.
 GameState atualizarfase(Fase *fase);
 
+// Compara o sanduíche montado com o pedido atual e, se estiver correto,
+// atende o cliente e prepara o próximo hambúrguer sem consumir um turno.
+// Retorna STATE_VITORIA, STATE_DERROTA ou STATE_NOVO_JOGO.
+GameState enviarHamburgerAtual(Fase *fase);
+
 #endif

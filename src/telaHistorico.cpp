@@ -12,8 +12,6 @@ static OrdemHistorico ordemAtual = ORDEM_PONTUACAO;
 static int primeiraLinha = 0; 
 
 static void atualizarExibida(void) {
-    liberarLista(&exibida);
-    copiarLista(original, &exibida);
     ordenarHistorico(&exibida, ordemAtual);
     primeiraLinha = 0;
 }
@@ -21,7 +19,10 @@ static void atualizarExibida(void) {
 void abrirTelaHistorico(const ListaContigua *historico) {
     original = historico;
     ordemAtual = ORDEM_PONTUACAO;
-    atualizarExibida();
+    liberarLista(&exibida);
+    copiarLista(original, &exibida);
+    ordenarHistorico(&exibida, ORDEM_ALFABETICA);
+    ordenarHistorico(&exibida, ordemAtual);
 }
 
 void fecharTelaHistorico(void) {
@@ -51,37 +52,67 @@ int atualizarDesenharTelaHistorico(void) {
     if (primeiraLinha > ultimaPossivel) primeiraLinha = ultimaPossivel;
     if (primeiraLinha < 0) primeiraLinha = 0;
 
-    // Título e opções de ordenação (o critério atual fica destacado)
-    DrawText("HISTORICO", 480, 24, 42, WHITE);
-    DrawText("Ordenar por:", 250, 84, 22, LIGHTGRAY);
-    DrawText("Pontuacao decrescente (P)", 420, 84, 22, ordemAtual == ORDEM_PONTUACAO ? GOLD : LIGHTGRAY);
-    DrawText("Alfabetica (A)", 760, 84, 22, ordemAtual == ORDEM_ALFABETICA ? GOLD : LIGHTGRAY);
+    // Fundo centralizado da tela de histórico.
+    const int larguraFundo = 900;
+    const int alturaFundo = 720;
+    const int fundoEsquerda = (GetScreenWidth() - larguraFundo) / 2;
+    const int fundoSuperior = 0;
+    const int fundoInferior = (GetScreenHeight() + alturaFundo) / 2;
+    DrawRectangle(fundoEsquerda, fundoSuperior, larguraFundo,
+                  fundoInferior - fundoSuperior, DARKGRAY);
+
+    // Mantém o histórico centralizado horizontalmente em telas de tamanhos diferentes.
+    const int larguraPainel = 800;
+    const int painelEsquerda = (GetScreenWidth() - larguraPainel) / 2;
+    const int painelDireita = painelEsquerda + larguraPainel;
+
+    const char *titulo = "HISTORICO";
+    const int tituloTamanho = 42;
+    DrawText(titulo,
+             GetScreenWidth() / 2 - MeasureText(titulo, tituloTamanho) / 2,
+             24, tituloTamanho, WHITE);
+
+    // Opções de ordenação (o critério atual fica destacado)
+    DrawText("Ordenar por:", painelEsquerda, 84, 22, LIGHTGRAY);
+    DrawText("Pontuacao decrescente (P)", painelEsquerda + 170, 84, 22,
+             ordemAtual == ORDEM_PONTUACAO ? GOLD : LIGHTGRAY);
+    DrawText("Alfabetica (A)", painelDireita - MeasureText("Alfabetica (A)", 22), 84, 22,
+             ordemAtual == ORDEM_ALFABETICA ? GOLD : LIGHTGRAY);
 
     // Cabeçalho da tabela
-    DrawText("#", 250, 130, 22, SKYBLUE);
-    DrawText("Nome", 330, 130, 22, SKYBLUE);
-    DrawText("Pontuacao", 800, 130, 22, SKYBLUE);
+    DrawText("#", painelEsquerda, 130, 22, SKYBLUE);
+    DrawText("Nome", painelEsquerda + 80, 130, 22, SKYBLUE);
+    DrawText("Pontuacao", painelDireita - MeasureText("Pontuacao", 22), 130, 22, SKYBLUE);
 
     if (exibida.tam == 0) {
-        DrawText("Nenhuma partida registrada ainda.", 330, 200, 24, LIGHTGRAY);
+        const char *mensagemVazia = "Nenhuma partida registrada ainda.";
+        DrawText(mensagemVazia,
+                 GetScreenWidth() / 2 - MeasureText(mensagemVazia, 24) / 2,
+                 200, 24, LIGHTGRAY);
     }
 
     // Linhas visíveis
     int y = 170;
     for (int i = primeiraLinha; i < exibida.tam && i < primeiraLinha + LINHAS_VISIVEIS; i++) {
-        DrawText(TextFormat("%d", i + 1), 250, y, 22, WHITE);
-        DrawText(exibida.dados[i].nome, 330, y, 22, WHITE);
-        DrawText(TextFormat("%d", exibida.dados[i].pontuacao), 800, y, 22, WHITE);
+        DrawText(TextFormat("%d", i + 1), painelEsquerda, y, 22, WHITE);
+        DrawText(exibida.dados[i].nome, painelEsquerda + 80, y, 22, WHITE);
+        DrawText(TextFormat("%d", exibida.dados[i].pontuacao),
+                 painelDireita - MeasureText(TextFormat("%d", exibida.dados[i].pontuacao), 22),
+                 y, 22, WHITE);
         y += 32;
     }
 
     if (exibida.tam > 0) {
         int ultimaVisivel = primeiraLinha + LINHAS_VISIVEIS;
         if (ultimaVisivel > exibida.tam) ultimaVisivel = exibida.tam;
-        DrawText(TextFormat("Mostrando %d-%d de %d", primeiraLinha + 1, ultimaVisivel, exibida.tam),
-                 250, 640, 18, LIGHTGRAY);
+        const char *contagem = TextFormat("Mostrando %d-%d de %d",
+                                          primeiraLinha + 1, ultimaVisivel, exibida.tam);
+        DrawText(contagem, painelEsquerda, 640, 18, LIGHTGRAY);
     }
-    DrawText("Setas/PageUp/PageDown: rolar    ESC: voltar ao menu", 330, 676, 20, LIGHTGRAY);
+    const char *ajuda = "Setas/PageUp/PageDown: rolar    ESC: voltar ao menu";
+    DrawText(ajuda,
+             GetScreenWidth() / 2 - MeasureText(ajuda, 20) / 2,
+             676, 20, LIGHTGRAY);
 
     if (IsKeyPressed(KEY_ESCAPE)) {
         fecharTelaHistorico();
@@ -96,6 +127,10 @@ static char nomeDigitado[TAM_NOME] = "";
 static bool partidaSalva = false;
 static bool falhaAoSalvar = false;
 
+static void desenharTextoFimCentralizado(const char *texto, int y, int tamanho, Color cor) {
+    DrawText(texto, (GetScreenWidth() - MeasureText(texto, tamanho)) / 2, y, tamanho, cor);
+}
+
 void iniciarTelaFim(void) {
     nomeDigitado[0] = '\0';
     partidaSalva = false;
@@ -103,17 +138,28 @@ void iniciarTelaFim(void) {
 }
 
 int atualizarDesenharTelaFim(bool vitoria, int pontuacao, ListaContigua *historico, const char *arqHistorico) {
-    DrawText(vitoria ? "VITORIA" : "DERROTA", 480, 130, 42, WHITE);
-    DrawText(vitoria ? "Voce atendeu todos os clientes." : "A paciencia do cliente acabou.",
-             340, 200, 24, LIGHTGRAY);
-    DrawText(TextFormat("Pontuacao: %d", pontuacao), 340, 240, 28, GOLD);
+    const int larguraPainel = 800;
+    const int alturaPainel = 480;
+    const int painelEsquerda = (GetScreenWidth() - larguraPainel) / 2;
+    const int painelSuperior = (GetScreenHeight() - alturaPainel) / 2;
+    DrawRectangle(painelEsquerda, painelSuperior, larguraPainel, alturaPainel, DARKGRAY);
+
+    desenharTextoFimCentralizado(vitoria ? "VITORIA" : "DERROTA",
+                                 painelSuperior + 40, 42, vitoria ? GREEN : RED);
+    desenharTextoFimCentralizado(vitoria ? "Voce atendeu todos os clientes." : "A paciencia do cliente acabou.",
+                                 painelSuperior + 105, 24, LIGHTGRAY);
+    desenharTextoFimCentralizado(TextFormat("Pontuacao: %d", pontuacao),
+                                 painelSuperior + 150, 28, GOLD);
 
     if (partidaSalva) {
         if (falhaAoSalvar)
-            DrawText("Nao foi possivel gravar o arquivo de historico.", 340, 330, 24, RED);
+            desenharTextoFimCentralizado("Nao foi possivel gravar o arquivo de historico.",
+                                         painelSuperior + 245, 24, RED);
         else
-            DrawText("Partida registrada no historico!", 340, 330, 24, GREEN);
-        DrawText("Pressione ESC para voltar ao menu", 340, 390, 24, LIGHTGRAY);
+            desenharTextoFimCentralizado("Partida registrada no historico!",
+                                         painelSuperior + 245, 24, GREEN);
+        desenharTextoFimCentralizado("Pressione ESC para voltar ao menu",
+                                     painelSuperior + 315, 24, LIGHTGRAY);
         return IsKeyPressed(KEY_ESCAPE) ? 1 : 0;
     }
 
@@ -129,12 +175,17 @@ int atualizarDesenharTelaFim(bool vitoria, int pontuacao, ListaContigua *histori
     if (IsKeyPressed(KEY_BACKSPACE) && tamanho > 0)
         nomeDigitado[tamanho - 1] = '\0';
 
-    DrawText("Digite seu nome e pressione ENTER:", 340, 310, 24, WHITE);
-    DrawRectangle(340, 350, 420, 44, DARKGRAY);
-    DrawText(nomeDigitado, 350, 360, 26, WHITE);
+    desenharTextoFimCentralizado("Digite seu nome e pressione ENTER:",
+                                 painelSuperior + 215, 24, WHITE);
+    const int larguraCampo = 420;
+    const int campoEsquerda = (GetScreenWidth() - larguraCampo) / 2;
+    DrawRectangle(campoEsquerda, painelSuperior + 260, larguraCampo, 44, GRAY);
+    DrawText(nomeDigitado, campoEsquerda + 10, painelSuperior + 270, 26, WHITE);
     if (((int)(GetTime() * 2)) % 2 == 0) 
-        DrawText("_", 350 + MeasureText(nomeDigitado, 26), 360, 26, WHITE);
-    DrawText("ESC: registrar como Anonimo e voltar ao menu", 340, 420, 20, LIGHTGRAY);
+        DrawText("_", campoEsquerda + 10 + MeasureText(nomeDigitado, 26),
+                 painelSuperior + 270, 26, WHITE);
+    desenharTextoFimCentralizado("ESC: registrar como Anonimo e voltar ao menu",
+                                 painelSuperior + 330, 20, LIGHTGRAY);
 
     if (IsKeyPressed(KEY_ENTER) && nomeDigitado[0] != '\0') {
         falhaAoSalvar = !registrarPartida(historico, arqHistorico, nomeDigitado, pontuacao);

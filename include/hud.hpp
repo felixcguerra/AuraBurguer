@@ -2,6 +2,7 @@
 #define HUD_HPP
 
 #include "fase.hpp"
+#include "raylib.h"
 
 /**
  * Desenha os parametros atuais da fase.
@@ -11,5 +12,10 @@ void desenharHud(const Fase *fase);
 void DesenharHamburger(const PilhaEnc *pilha, int posX, int posY);
 // Desenha o pedido do cliente da frente da fila a partir da posição (posX, posY).
 void DesenharPedido(const FilaEnc *fila, int posX, int posY);
+// Importa e libera a spritesheet usada pelos ingredientes.
+void carregarSpritesIngredientes();
+void descarregarSpritesIngredientes();
+// Desenha um ingrediente da spritesheet como simbolo.
+void PrintarIngrediente(const char *texto, Vector2 posicao, float escala = 1.0f, Color cor = WHITE);
 
 #endif

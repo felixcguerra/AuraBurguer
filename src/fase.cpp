@@ -153,26 +153,38 @@ GameState atualizarfase(Fase *fase) {
     fase->TurnoAtual++;
     if (fase->PacienciaDoClienteAtual > 0)
         fase->PacienciaDoClienteAtual--;
-    Pedido pedidoAtual = {};
-    // Se o hambúrguer montado bate com o pedido da frente da fila, o cliente é atendido
-    if (frente(&fase->pedidos, &pedidoAtual) &&
-        CompararHamburguerComPedido(&fase->pedidoAtual, &pedidoAtual)) {
-        fase->NumDePedidos--;
-        limpar(&fase->pedidoAtual); // prepara um prato vazio para o próximo cliente
-        // Remove o cliente atendido da fila e libera a lista de ingredientes dele
-        Pedido descartado = {};
-        if (dequeue(&fase->pedidos, &descartado))
-            destruir(&descartado.ingredientes);
-        // Era o último cliente: vitória
-        if (fase->NumDePedidos <= 0)
-            return STATE_VITORIA;
-        // O próximo cliente começa com a paciência máxima
-        fase->PacienciaDoClienteAtual = fase->PacienciaDosClientes;
-    }
-
     // Paciência esgotada antes de concluir o pedido: derrota
     if (fase->PacienciaDoClienteAtual <= 0)
         return STATE_DERROTA;
+/*
+    verificarfp(&fase->Carne, fase->TurnoAtual);
+    verificarfp(&fase->Ovo, fase->TurnoAtual);
+    verificarfp(&fase->Bacon, fase->TurnoAtual);*/
+    return STATE_NOVO_JOGO;
+}
 
+// Envia o hambúrguer sem consumir turno. Só atende o cliente quando o conteúdo
+// da pilha corresponde ao pedido da frente da fila.
+GameState enviarHamburgerAtual(Fase *fase) {
+    if (fase == nullptr)
+        return STATE_DERROTA;
+
+    Pedido pedidoAtual = {};
+    if (!frente(&fase->pedidos, &pedidoAtual) ||
+        !CompararHamburguerComPedido(&fase->pedidoAtual, &pedidoAtual)) {
+        return STATE_NOVO_JOGO;
+    }
+
+    fase->NumDePedidos--;
+    limpar(&fase->pedidoAtual);
+
+    Pedido descartado = {};
+    if (dequeue(&fase->pedidos, &descartado))
+        destruir(&descartado.ingredientes);
+
+    if (fase->NumDePedidos <= 0)
+        return STATE_VITORIA;
+
+    fase->PacienciaDoClienteAtual = fase->PacienciaDosClientes;
     return STATE_NOVO_JOGO;
 }

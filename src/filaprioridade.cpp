@@ -88,7 +88,7 @@ int fpRemoverMinimo(FilaPrioridade *fp) {
 
 void verificarfp(FilaPrioridade *fp, int turno){
     int min=fpMinimo(fp);
-    if(min+6<turno)
+    if(min+7<turno)
         fpRemoverMinimo(fp);
-
+        return;
 }

@@ -46,11 +46,12 @@ void registrarMetricasCarga(int altura, double tempoCarga, int entradasHistorico
 
     FILE *arq = fopen("medicoes.log", "a");
     if (arq != NULL) {
-        fprintf(arq, "--- 5.1 CARREGAMENTO INICIAL ---\n");
-        fprintf(arq, "AVL - Nos Inseridos: %d\n", g_metricas.avlNosInseridos);
-        fprintf(arq, "AVL - Altura da Arvore: %d\n", g_metricas.avlAltura);
-        fprintf(arq, "AVL - Numero de Rotacoes: %d\n", g_metricas.avlRotacoes);
-        fprintf(arq, "AVL - Tempo de Carregamento: %.6f s\n", g_metricas.avlTempoCarga);
+        fprintf(arq, "--- AVL:Carregamento ---\n");
+        fprintf(arq, "Nos Inseridos: %d\n", g_metricas.avlNosInseridos);
+        fprintf(arq, "Altura da Arvore: %d\n", g_metricas.avlAltura);
+        fprintf(arq, "Numero de Rotacoes: %d\n", g_metricas.avlRotacoes);
+        fprintf(arq, "Tempo de Carregamento: %.6f s\n", g_metricas.avlTempoCarga);
+        fprintf(arq, "--Historico:carregamento--\n", g_metricas.avlTempoCarga);
         fprintf(arq, "Historico - Entradas Carregadas: %d\n\n", g_metricas.historicoEntradasCarregadas);
         fclose(arq);
     }
@@ -67,7 +68,7 @@ void registrarMetricaOrdenacao(double tempoOrdenacao, int n, const char *criteri
 
     FILE *arq = fopen("medicoes.log", "a");
     if (arq != NULL) {
-        fprintf(arq, "--- 5.2 ORDENACAO DO HISTORICO ---\n");
+        fprintf(arq, "--- ORDENACAO DO HISTORICO ---\n");
         fprintf(arq, "Criterio: %s | Registros ordenados: %d\n", criterio, n);
         fprintf(arq, "Tempo de Execucao (MergeSort): %.6f s\n\n", tempoOrdenacao);
         fclose(arq);
