@@ -230,8 +230,9 @@ void desenharHud(const Fase *fase) {
     const int barraLargura = 300;
     const int barraAltura = 40;
     float razao = 0.0f;
-    if (fase->PacienciaDosClientes > 0) {
-        razao = (float)fase->PacienciaDoClienteAtual / (float)fase->PacienciaDosClientes;
+    int turnos=fase->PacienciaDosClientes-fase->PacienciaDoClienteAtual;
+    if (fase->PacienciaDosClientes > 1) {
+        razao = (float)turnos / (float)(fase->PacienciaDosClientes - 1);
     }
     if (razao < 0.0f)
         razao = 0.0f;
@@ -241,7 +242,7 @@ void desenharHud(const Fase *fase) {
     DrawRectangleGradientH(barraX, barraY, barraLargura, barraAltura, GREEN, RED);
     DrawRectangleLines(barraX, barraY, barraLargura, barraAltura, DARKGRAY);
 
-    const int marcadorPosX = barraX + (int)((1.0f - razao) * (barraLargura - 12));
+    const int marcadorPosX = barraX + (int)(razao * (barraLargura - 12));
     DrawRectangle(marcadorPosX, barraY - 8, 12, barraAltura + 16, WHITE);
     DrawRectangleLines(marcadorPosX, barraY - 8, 12, barraAltura + 16, BLACK);
 
