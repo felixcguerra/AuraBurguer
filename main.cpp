@@ -56,6 +56,14 @@ static int prepararOuAdicionarIngrediente(Fase *fase, char tipo, int *preparado)
 static int prepararOuAdicionarIngredienteHeap(Fase *fase, char tipo, FilaPrioridade *alimento) {
     int min = fpMinimo(alimento);
 
+   
+    if (min + 6 < fase->TurnoAtual) {
+        while (min!=-1 && min + 6 < fase->TurnoAtual) {
+            fpRemoverMinimo(alimento);
+            min = fpMinimo(alimento);
+        }
+        
+    } 
     if (min == -1) {
         fpInserir(alimento, fase->TurnoAtual);
         return 1;
@@ -119,19 +127,20 @@ int main(int argc, char *argv[]) {
     registrarMetricasCarga(alturaAVL, tempoCarga, historico.tam);
 
     Fase fase;
-    const int larguraJanela = 1200;
-    const int alturaJanela = 720;
+    const int larguraJanela = 1800;
+    const int alturaJanela = 1000;
     GameState estadoAtual = STATE_MENU;
     GameState estadoRetornoAjuda = STATE_MENU;
     bool executando = true;
 
-    InitWindow(larguraJanela, alturaJanela, "Burguer");
+    InitWindow(larguraJanela, alturaJanela, "Dado Burguer");
+    carregarSpritesIngredientes();
     SetTargetFPS(60);
     SetExitKey(0);
 
     while (executando && !WindowShouldClose()) {
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(BLUE);
 
         switch (estadoAtual) {
             case STATE_MENU: {
@@ -155,7 +164,7 @@ int main(int argc, char *argv[]) {
             }
 
             case STATE_NOVO_JOGO: {
-                DrawText("Cozinha", 480, 100, 42, WHITE);
+                DrawText("Cozinha", GetScreenWidth() / 2 - MeasureText("Cozinha", 84) , 100, 84, WHITE);
 
                 if (IsKeyPressed(KEY_ESCAPE)) {
                     estadoAtual = STATE_PAUSE;
@@ -185,9 +194,11 @@ int main(int argc, char *argv[]) {
                     default: break;
                 }
 
-                verificarfp(&fase.Carne, fase.TurnoAtual);
-                verificarfp(&fase.Ovo, fase.TurnoAtual);
-                verificarfp(&fase.Bacon, fase.TurnoAtual);
+                if (IsKeyPressed(KEY_ENTER)) {
+                    estadoAtual = enviarHamburgerAtual(&fase);
+                    if (estadoAtual == STATE_VITORIA || estadoAtual == STATE_DERROTA)
+                        iniciarTelaFim();
+                }
 
                 if (turnoConcluido) {
                     estadoAtual = atualizarfase(&fase);
@@ -196,8 +207,6 @@ int main(int argc, char *argv[]) {
                 }
 
                 desenharHud(&fase);
-                DesenharHamburger(&fase.pedidoAtual, 600, 440);
-                DesenharPedido(&fase.pedidos, 900, 440);
                 break;
             }
 
@@ -251,6 +260,7 @@ int main(int argc, char *argv[]) {
     fecharTelaHistorico();
     liberarLista(&historico);
 
+    descarregarSpritesIngredientes();
     CloseWindow();
     return 0;
 }
